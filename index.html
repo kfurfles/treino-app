@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f4f4f1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121314" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Treino">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>Treino</title>
+<style>
+:root {
+  --bg: #f4f4f1;
+  --card: #ffffff;
+  --text: #1b1c1e;
+  --muted: #6b6d72;
+  --line: #e2e2dd;
+  --accent: #2f6fde;
+  --accent-text: #ffffff;
+  --done: #1f9d55;
+  --done-soft: #e3f4ea;
+  --warn: #b4441c;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121314;
+    --card: #1c1d20;
+    --text: #ececea;
+    --muted: #9a9ca1;
+    --line: #2c2e32;
+    --accent: #5a8ff0;
+    --accent-text: #0d0e10;
+    --done: #3cc47a;
+    --done-soft: #17301f;
+    --warn: #f08a5d;
+  }
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; background: var(--bg); color: var(--text); }
+body {
+  font: 16px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  -webkit-text-size-adjust: 100%;
+}
+button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+a { color: var(--accent); }
+.wrap { max-width: 560px; margin: 0 auto; padding: 16px 16px 120px; }
+
+/* Home */
+.date { color: var(--muted); font-size: 15px; margin: 8px 0 4px; }
+.date::first-letter { text-transform: uppercase; }
+h1 { font-size: 28px; margin: 0 0 16px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
+.today h2 { margin: 0 0 4px; font-size: 22px; }
+.today p { margin: 0 0 16px; color: var(--muted); }
+.big-btn {
+  display: block; width: 100%; padding: 16px; border-radius: 14px;
+  background: var(--accent); color: var(--accent-text); font-weight: 600; font-size: 18px;
+}
+.big-btn.secondary { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
+.resume { border-color: var(--accent); }
+.resume .bar { margin: 8px 0 14px; }
+.label { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin: 24px 0 8px; }
+.pick {
+  display: flex; align-items: center; justify-content: space-between; width: 100%;
+  text-align: left; background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+  padding: 14px 16px; margin-bottom: 8px;
+}
+.pick b { display: block; }
+.pick span { color: var(--muted); font-size: 14px; }
+.pick .chev { color: var(--muted); font-size: 22px; }
+.week { width: 100%; border-collapse: collapse; font-size: 15px; }
+.week td { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.week td:first-child { color: var(--muted); width: 40%; }
+.week tr.is-today td { font-weight: 600; color: var(--text); }
+
+/* Workout */
+.top {
+  position: sticky; top: 0; z-index: 5; background: var(--bg);
+  padding: calc(env(safe-area-inset-top) + 8px) 16px 10px; margin-top: calc(-1 * env(safe-area-inset-top));
+  border-bottom: 1px solid var(--line);
+}
+.top-row { display: flex; align-items: center; gap: 8px; max-width: 560px; margin: 0 auto; }
+.back { font-size: 28px; line-height: 1; padding: 6px 10px 6px 0; color: var(--accent); }
+.top-title { flex: 1; min-width: 0; }
+.top-title b { display: block; font-size: 18px; }
+.top-title span { color: var(--muted); font-size: 13px; }
+.count { font-weight: 700; font-variant-numeric: tabular-nums; font-size: 18px; }
+.bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--done); border-radius: 3px; transition: width .25s; }
+.top .bar { max-width: 560px; margin: 10px auto 0; }
+
+.section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin: 24px 0 8px; }
+.section-head h3 { margin: 0; font-size: 18px; }
+.section-head span { color: var(--muted); font-size: 13px; text-align: right; }
+
+.ex { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px 14px 12px; margin-bottom: 10px; transition: background .2s, border-color .2s; scroll-margin-top: 110px; }
+.ex.complete { background: var(--done-soft); border-color: var(--done); }
+.ex-head { display: flex; gap: 10px; align-items: flex-start; }
+.num { flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--line); font-size: 13px; font-weight: 700; display: grid; place-items: center; margin-top: 1px; }
+.ex.complete .num { background: var(--done); color: var(--card); }
+.ex-name { flex: 1; min-width: 0; font-weight: 600; font-size: 17px; }
+.ex-name a { color: var(--text); text-decoration: none; }
+.ex-name .or { color: var(--muted); font-weight: 400; }
+.vid { flex: none; font-size: 13px; font-weight: 600; color: var(--accent); text-decoration: none; padding: 4px 8px; border: 1px solid var(--line); border-radius: 8px; }
+.reps { margin: 6px 0 0 36px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.how { margin: 2px 0 0 36px; color: var(--muted); font-size: 14px; }
+.sets { display: flex; gap: 10px; margin: 12px 0 0 36px; flex-wrap: wrap; }
+.set {
+  width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--line);
+  font-weight: 700; font-size: 16px; color: var(--muted); display: grid; place-items: center;
+  transition: background .15s, border-color .15s, color .15s, transform .1s;
+}
+.set:active { transform: scale(.92); }
+.set.on { background: var(--done); border-color: var(--done); color: var(--card); }
+
+.finish { margin-top: 24px; }
+.finish p { text-align: center; color: var(--muted); font-size: 14px; margin: 8px 0 0; }
+.done-banner { text-align: center; }
+.done-banner h2 { margin: 0 0 4px; color: var(--done); }
+.done-banner p { margin: 0 0 14px; color: var(--muted); }
+.end-link { display: block; margin: 12px auto 0; color: var(--warn); font-size: 15px; padding: 8px; }
+
+.toast {
+  position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 24px); transform: translateX(-50%);
+  background: var(--text); color: var(--bg); padding: 12px 18px; border-radius: 12px; font-weight: 600;
+  opacity: 0; transition: opacity .25s; pointer-events: none; max-width: calc(100% - 32px); text-align: center;
+}
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+<script>
+const yt = (q) => 'https://www.youtube.com/results?search_query=' + q;
+const ex = (name, url, sets, reps, how, alt) => ({ name, url, sets, reps, how, alt });
+const BARRA = ['Barra fixa', 'https://www.youtube.com/watch?v=Y3ntNsIS2Q8'];
+const REMADA = { name: 'remada invertida', url: 'https://www.youtube.com/watch?v=GdyhjXlxE-U' };
+
+const WORKOUTS = {
+  A: {
+    name: 'Treino A', day: 'Segunda', focus: 'Empurrar + pernas + core',
+    sections: [
+      { title: 'Aquecimento', rest: '2 voltas, sem pausa', items: [
+        ex('Corrida com joelhos altos', yt('high+knees+exercise'), 2, '40 s', 'Coxa até a linha do quadril, braços bombeando.'),
+        ex('Agachamento abre e fecha', yt('squat+jacks+exercise'), 2, '40 s', 'Salta abrindo os pés e cai em agachamento médio.'),
+        ex('Chutes frontais de perna estendida', yt('frankenstein+kicks+exercise'), 2, '40 s', 'Pequenos saltos chutando a perna reta à frente.'),
+      ]},
+      { title: 'Força', rest: '60–90 s entre séries', items: [
+        ex('Flexão de braço', 'https://www.youtube.com/watch?v=IODxDxX7oi4', 3, '8–12', 'Corpo reto da cabeça aos calcanhares. Fez 12 em todas? Pés numa cadeira. Cansou antes de 8? Joelhos no chão.'),
+        ex(...BARRA, 3, '5–8', 'Sem barra: remada deitado sob uma mesa firme.', REMADA),
+        ex('Flexão aberta', yt('wide+push+up+tutorial'), 3, '8–12', 'Mãos bem além dos ombros, peito desce entre elas.'),
+        ex('Flexão pike (em V)', 'https://www.youtube.com/watch?v=x7_I5SUAd00', 3, '8–10', 'Quadril alto, cabeça desce entre as mãos.'),
+        ex('Mergulho no banco', 'https://www.youtube.com/watch?v=l41SoWZiowI', 3, '8–12', 'Mãos num banco ou cadeira firme atrás de você.'),
+        ex('Agachamento livre', 'https://www.youtube.com/watch?v=xqvCmoLULNY', 3, '15–20', 'Coxa paralela ao chão, peso nos calcanhares.'),
+        ex('Avanço (afundo)', 'https://www.youtube.com/watch?v=wrwwXE_x-pQ', 3, '10–12 por perna', 'Joelho da frente sobre o tornozelo, tronco reto.'),
+        ex('Ponte de glúteo', 'https://www.youtube.com/watch?v=wPM8icPu6H8', 3, '15–20', 'Deitado, sobe o quadril e aperta o glúteo no alto.'),
+      ]},
+      { title: 'Core', rest: '30–45 s entre séries', items: [
+        ex('Elevação de pernas sentado', yt('seated+leg+raises+abs'), 3, '10–15', 'Mãos no chão atrás, pernas retas sobem em V.'),
+        ex('Recolhimento e extensão', yt('seated+in+and+outs+abs'), 3, '12–15', 'Joelhos ao peito e estica, pés sem tocar o chão.'),
+        ex('Prancha', 'https://www.youtube.com/watch?v=ASdvN_XEl_c', 3, '30–45 s', 'Antebraços no chão, quadril alinhado.'),
+      ]},
+    ],
+  },
+  B: {
+    name: 'Treino B', day: 'Quarta', focus: 'Puxar + potência + abdômen',
+    note: 'Pernas cansadas do boxe? Troque os saltos por agachamento e avanço sem salto.',
+    sections: [
+      { title: 'Aquecimento', rest: '2 voltas, sem pausa', items: [
+        ex('Joelhos altos com mãos sob a perna', yt('high+knees+clap+under+leg'), 2, '40 s', 'Junta as mãos por baixo da coxa que sobe.'),
+        ex('Joelhada frontal com puxada de braços', yt('standing+knee+drive+arms+pull+down+exercise'), 2, '40 s', 'Braços no alto descem até o joelho que sobe.'),
+        ex('Oblíquo em pé cotovelo-joelho', yt('standing+oblique+crunch+elbow+to+knee'), 2, '40 s', 'Mãos na cabeça, joelho sobe pela lateral até o cotovelo.'),
+      ]},
+      { title: 'Força', rest: '60–90 s entre séries', items: [
+        ex(...BARRA, 3, '5–8', 'Desce devagar, em 2–3 segundos.', REMADA),
+        ex('Flexão fechada', yt('close+grip+push+up+tutorial'), 3, '8–12', 'Mãos próximas, cotovelos colados ao corpo.'),
+        ex('Prancha para flexão', 'https://www.youtube.com/watch?v=56vUOad6Irs', 3, '10', 'Da prancha de antebraço sobe para as mãos, um braço por vez, e volta.'),
+        ex('Extensão de tríceps no solo (sphinx)', yt('sphinx+push+up+triceps'), 3, '8–10', 'Antebraços no chão; empurra as palmas até esticar os braços.'),
+        ex('Agachamento com salto', yt('jump+squat+tutorial'), 3, '10–12', 'Aterrissa suave e já desce para o próximo.'),
+        ex('Afundo com salto', yt('jumping+lunges+tutorial'), 3, '8 por perna', 'Troca as pernas no ar, cai na ponta dos pés.'),
+        ex('Agachamento sumô com toque no chão', yt('sumo+squat+floor+touch'), 3, '15', 'Base larga, uma mão toca o chão a cada descida, alternando.'),
+        ex('Elevação de panturrilha', 'https://www.youtube.com/watch?v=gwLzBJYoWlI', 3, '20', 'Num degrau, desce o calcanhar e sobe na ponta.'),
+      ]},
+      { title: 'Core', rest: '30–45 s entre séries', items: [
+        ex('Tesoura curta sentado', yt('seated+flutter+kicks'), 3, '30', 'Tronco inclinado, pernas retas batendo rápido sem tocar o chão.'),
+        ex('Tesoura ampla sentado', yt('seated+scissor+kicks+abs'), 3, '20', 'Uma perna sobe quase a 90°, a outra desce, alternando.'),
+        ex('Grupado oblíquo sentado', yt('seated+oblique+knee+tucks'), 3, '12 por lado', 'Joelhos ao peito com leve giro para um lado.'),
+        ex('Russian twist', 'https://www.youtube.com/watch?v=JyUqwkVpsi8', 3, '15 por lado', 'Gira o tronco de um lado ao outro.'),
+      ]},
+    ],
+  },
+  C: {
+    name: 'Treino C', day: 'Sexta', focus: 'Força unilateral + core rotacional',
+    note: 'Exercícios 12 e 13: use duas garrafas d\'água em pé como obstáculo.',
+    sections: [
+      { title: 'Aquecimento', rest: '2 voltas, sem pausa', items: [
+        ex('Polichinelo', yt('jumping+jacks+tutorial'), 2, '40 s', ''),
+        ex('Corrida com joelhos altos', yt('high+knees+exercise'), 2, '40 s', ''),
+        ex('Agachamento abre e fecha', yt('squat+jacks+exercise'), 2, '40 s', ''),
+      ]},
+      { title: 'Força', rest: '60–90 s entre séries', items: [
+        ex('Flexão de braço', 'https://www.youtube.com/watch?v=IODxDxX7oi4', 3, '8–12', 'Tente descer em 3 segundos.'),
+        ex(...BARRA, 3, '5–8', 'Mesma variação de segunda e quarta.', REMADA),
+        ex('Flexão pike (em V)', 'https://www.youtube.com/watch?v=x7_I5SUAd00', 3, '8–10', 'Quadril alto, cabeça entre as mãos.'),
+        ex('Mergulho no banco', 'https://www.youtube.com/watch?v=l41SoWZiowI', 3, '8–12', 'Ombros longe das orelhas.'),
+        ex('Flexão sobre os punhos fechados', yt('knuckle+push+up+tutorial'), 3, '8', 'Nós dos dedos no chão, em cima de uma toalha.'),
+        ex('Agachamento búlgaro', 'https://www.youtube.com/shorts/9p5e2BSvoLs', 3, '10 por perna', 'Pé de trás numa cadeira, desce com a perna da frente.'),
+        ex('Ponte de glúteo com uma perna', 'https://www.youtube.com/watch?v=3NXv0Nany-Q', 3, '12 por perna', 'Uma perna esticada no ar, sobe o quadril com a outra.'),
+        ex('Panturrilha com uma perna', yt('single+leg+calf+raise'), 3, '15 por perna', 'Apoie a mão na parede para equilíbrio.'),
+      ]},
+      { title: 'Core', rest: '30–45 s entre séries', items: [
+        ex('Recolhimento lateral sobre obstáculo', yt('seated+side+to+side+knee+tucks+over+obstacle'), 3, '8 por lado', 'Joelhos ao centro, estica as pernas por fora de cada garrafa.'),
+        ex('Limpador de pernas sentado', yt('seated+leg+circles+over+obstacle+abs'), 3, '8 por lado', 'Pernas retas fazem um arco por cima das garrafas.'),
+        ex('Toque no pé com perna alternada', yt('seated+alternating+toe+touch+abs'), 3, '10 por lado', 'Uma perna reta sobe e as duas mãos tocam o pé.'),
+        ex('Prancha', 'https://www.youtube.com/watch?v=ASdvN_XEl_c', 3, '45 s', 'Termine com o abdômen bem firme.'),
+      ]},
+    ],
+  },
+};
+
+// getDay(): 0 = domingo
+const WEEK = [
+  { day: 'Domingo', kind: 'rest' },
+  { day: 'Segunda', kind: 'workout', id: 'A' },
+  { day: 'Terça', kind: 'boxe' },
+  { day: 'Quarta', kind: 'workout', id: 'B' },
+  { day: 'Quinta', kind: 'boxe' },
+  { day: 'Sexta', kind: 'workout', id: 'C' },
+  { day: 'Sábado', kind: 'rest' },
+];
+const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
+
+const KEY = 'treino-app-v1';
+const app = document.getElementById('app');
+
+function load() {
+  try { return JSON.parse(localStorage.getItem(KEY)) || { active: null }; }
+  catch { return { active: null }; }
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {}
+}
+let state = load();
+
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+function exercises(w) {
+  const list = [];
+  w.sections.forEach((s, si) => s.items.forEach((e, ei) => list.push({ key: si + '-' + ei, e })));
+  return list;
+}
+function progress(a) {
+  const list = exercises(WORKOUTS[a.id]);
+  const done = list.filter(({ key, e }) => (a.done[key] || 0) >= e.sets).length;
+  return { done, total: list.length };
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast.t);
+  toast.t = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function startWorkout(id) {
+  if (state.active && state.active.id !== id) {
+    if (!confirm(WORKOUTS[state.active.id].name + ' está em andamento. Descartar e iniciar ' + WORKOUTS[id].name + '?')) return;
+  }
+  if (!state.active || state.active.id !== id) {
+    state.active = { id, started: Date.now(), done: {} };
+    save();
+  }
+  showWorkout();
+}
+
+function endWorkout() {
+  const p = progress(state.active);
+  if (p.done < p.total && !confirm('Faltam ' + (p.total - p.done) + ' exercícios. Encerrar mesmo assim?')) return;
+  const name = WORKOUTS[state.active.id].name;
+  state.active = null;
+  save();
+  showHome();
+  toast(name + ' encerrado');
+}
+
+/* ---------- Home ---------- */
+function showHome() {
+  const now = new Date();
+  const today = WEEK[now.getDay()];
+  const dateStr = now.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+  let html = '<div class="wrap">';
+  html += '<div class="date">' + esc(dateStr) + '</div><h1>Treino</h1>';
+
+  if (state.active) {
+    const w = WORKOUTS[state.active.id];
+    const p = progress(state.active);
+    html += '<div class="card resume"><div class="label" style="margin-top:0">Em andamento</div>' +
+      '<b>' + esc(w.name) + '</b> · ' + p.done + ' de ' + p.total + ' exercícios' +
+      '<div class="bar"><i style="width:' + (100 * p.done / p.total) + '%"></i></div>' +
+      '<button class="big-btn" data-act="resume">Continuar treino</button></div>';
+  }
+
+  if (today.kind === 'workout' && !(state.active && state.active.id === today.id)) {
+    const w = WORKOUTS[today.id];
+    html += '<div class="card today"><h2>Hoje: ' + esc(w.name) + '</h2><p>' + esc(w.focus) + ' · ' + exercises(w).length + ' exercícios</p>' +
+      '<button class="big-btn' + (state.active ? ' secondary' : '') + '" data-act="start" data-id="' + today.id + '">Iniciar ' + esc(w.name) + '</button></div>';
+  } else if (today.kind === 'boxe') {
+    html += '<div class="card today"><h2>Hoje: boxe</h2><p>Sem calistenia hoje.</p></div>';
+  } else if (today.kind === 'rest') {
+    html += '<div class="card today"><h2>Hoje: descanso</h2><p>Caminhada leve ou alongamento.</p></div>';
+  }
+
+  html += '<div class="label">Todos os treinos</div>';
+  for (const id of Object.keys(WORKOUTS)) {
+    const w = WORKOUTS[id];
+    html += '<button class="pick" data-act="start" data-id="' + id + '"><div><b>' + esc(w.name) + ' · ' + esc(w.day) + '</b><span>' + esc(w.focus) + '</span></div><span class="chev">›</span></button>';
+  }
+
+  html += '<div class="label">Semana</div><div class="card"><table class="week">';
+  for (const i of WEEK_ORDER) {
+    const d = WEEK[i];
+    const what = d.kind === 'workout' ? WORKOUTS[d.id].name + ': ' + WORKOUTS[d.id].focus : d.kind === 'boxe' ? 'Boxe' : 'Descanso';
+    html += '<tr class="' + (i === now.getDay() ? 'is-today' : '') + '"><td>' + d.day + '</td><td>' + esc(what) + '</td></tr>';
+  }
+  html += '</table></div></div>';
+
+  app.innerHTML = html;
+  window.scrollTo(0, 0);
+}
+
+/* ---------- Workout ---------- */
+function showWorkout() {
+  const a = state.active;
+  const w = WORKOUTS[a.id];
+  let n = 0;
+  let html = '<div class="top"><div class="top-row">' +
+    '<button class="back" data-act="home" aria-label="Voltar">‹</button>' +
+    '<div class="top-title"><b>' + esc(w.name) + '</b><span>' + esc(w.focus) + '</span></div>' +
+    '<div class="count" id="count"></div></div>' +
+    '<div class="bar"><i id="bar"></i></div></div>';
+  html += '<div class="wrap">';
+  if (w.note) html += '<div class="card" style="font-size:14px;color:var(--muted)">' + esc(w.note) + '</div>';
+  w.sections.forEach((s, si) => {
+    html += '<div class="section-head"><h3>' + esc(s.title) + '</h3><span>' + esc(s.rest) + '</span></div>';
+    s.items.forEach((e, ei) => {
+      n++;
+      const key = si + '-' + ei;
+      let name = '<a href="' + esc(e.url) + '" target="_blank" rel="noopener">' + esc(e.name) + '</a>';
+      if (e.alt) name += ' <span class="or">ou</span> <a href="' + esc(e.alt.url) + '" target="_blank" rel="noopener">' + esc(e.alt.name) + '</a>';
+      html += '<div class="ex" id="ex-' + key + '" data-key="' + key + '">' +
+        '<div class="ex-head"><div class="num">' + n + '</div><div class="ex-name">' + name + '</div>' +
+        '<a class="vid" href="' + esc(e.url) + '" target="_blank" rel="noopener">Vídeo</a></div>' +
+        '<div class="reps">' + e.sets + ' × ' + esc(e.reps) + '</div>' +
+        (e.how ? '<div class="how">' + esc(e.how) + '</div>' : '') +
+        '<div class="sets">';
+      for (let i = 0; i < e.sets; i++) {
+        html += '<button class="set" data-act="set" data-key="' + key + '" data-i="' + i + '" aria-label="Série ' + (i + 1) + '">' + (i + 1) + '</button>';
+      }
+      html += '</div></div>';
+    });
+  });
+  html += '<div class="finish" id="finish"></div></div>';
+  app.innerHTML = html;
+  exercises(w).forEach(({ key }) => paintCard(key));
+  paintProgress();
+  window.scrollTo(0, 0);
+}
+
+function findEx(key) {
+  const [si, ei] = key.split('-').map(Number);
+  return WORKOUTS[state.active.id].sections[si].items[ei];
+}
+
+function paintCard(key) {
+  const card = document.getElementById('ex-' + key);
+  const e = findEx(key);
+  const d = state.active.done[key] || 0;
+  card.classList.toggle('complete', d >= e.sets);
+  card.querySelectorAll('.set').forEach((b, i) => {
+    const on = i < d;
+    b.classList.toggle('on', on);
+    b.textContent = on ? '✓' : String(i + 1);
+  });
+}
+
+function paintProgress() {
+  const p = progress(state.active);
+  document.getElementById('count').textContent = p.done + '/' + p.total;
+  document.getElementById('bar').style.width = (100 * p.done / p.total) + '%';
+  const f = document.getElementById('finish');
+  if (p.done === p.total) {
+    f.innerHTML = '<div class="card done-banner"><h2>Treino completo</h2><p>Todos os ' + p.total + ' exercícios feitos. Agora 5 minutos de alongamento.</p>' +
+      '<button class="big-btn" data-act="end">Concluir treino</button></div>';
+  } else {
+    f.innerHTML = '<button class="end-link" data-act="end">Encerrar treino</button>';
+  }
+}
+
+function tapSet(key, i) {
+  const e = findEx(key);
+  const before = state.active.done[key] || 0;
+  const after = i < before ? i : i + 1;
+  state.active.done[key] = after;
+  save();
+  paintCard(key);
+  paintProgress();
+  if (before < e.sets && after >= e.sets) scrollToNext(key);
+}
+
+function scrollToNext(fromKey) {
+  const list = exercises(WORKOUTS[state.active.id]);
+  const start = list.findIndex((x) => x.key === fromKey);
+  const rest = list.slice(start + 1).concat(list.slice(0, start));
+  const next = rest.find(({ key, e }) => (state.active.done[key] || 0) < e.sets);
+  const target = next ? document.getElementById('ex-' + next.key) : document.getElementById('finish');
+  setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 250);
+}
+
+app.addEventListener('click', (ev) => {
+  const b = ev.target.closest('[data-act]');
+  if (!b) return;
+  const act = b.dataset.act;
+  if (act === 'start') startWorkout(b.dataset.id);
+  else if (act === 'resume') showWorkout();
+  else if (act === 'home') showHome();
+  else if (act === 'set') tapSet(b.dataset.key, Number(b.dataset.i));
+  else if (act === 'end') endWorkout();
+});
+
+if (state.active && !WORKOUTS[state.active.id]) state.active = null;
+state.active ? showWorkout() : showHome();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
